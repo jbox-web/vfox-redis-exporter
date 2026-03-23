@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#MISE description="Run plugin tests - install and execute tool"
+set -euo pipefail
+
+mise plugin link --force redis-exporter .
+mise cache clear
+mise install redis-exporter@1.82.0
+
+# Capture and display the output while also verifying it
+output=$(mise exec "redis-exporter@1.82.0" -- "redis_exporter" --version 2>&1)
+echo "redis-exporter output: ${output}"
+
+if echo "${output}" | grep -q '1.82.0'; then
+  echo "✓ Tests passed"
+else
+  echo "✗ Test failed: expected version redis-exporter@1.82.0"
+  exit 1
+fi
